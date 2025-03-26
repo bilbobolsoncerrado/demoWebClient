@@ -1,11 +1,9 @@
 package org.example;
-
-
+import org.example.rest.*;
+import org.example.exceptions.*;
+import org.example.model.Manufacturer;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.http.ResponseEntity;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.text.SimpleDateFormat;
@@ -16,6 +14,27 @@ public class Main {
 
     public static void main(String[] args) {
 
+                ManufacturerService manufacturerService = new ManufacturerService();
+
+                // Llamamos al servicio para obtener los fabricantes
+                Mono<List<Manufacturer>> manufacturersMono = manufacturerService.getAllManufacturers();
+
+                // Suscribirse al Mono para manejar la respuesta
+                manufacturersMono.subscribe(
+                        manufacturers -> System.out.println("Manufacturers usando service: " + manufacturers),
+                        error -> {
+                            // Manejar errores personalizados
+                            if (error instanceof ClientErrorException) {
+                                System.err.println("Client Error: " + error.getMessage());
+                            } else if (error instanceof ServerErrorException) {
+                                System.err.println("Server Error: " + error.getMessage());
+                            } else if (error instanceof GeneralErrorException) {
+                                System.err.println("General Error: " + error.getMessage());
+                            } else {
+                                System.err.println("Unknown Error: " + error.getMessage());
+                            }
+                        }
+                );
 
                 WebClient webClient = WebClient.create(BASE_URL);
 
