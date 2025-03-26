@@ -1,5 +1,5 @@
 package org.example;
-
+import java.util.Date;
 
 public class Manufacturer {
 
@@ -15,15 +15,16 @@ public class Manufacturer {
 
     private Integer year;
 
+    private Date initialDate;
     public Manufacturer() {
     }
 
-    public Manufacturer(Long id, String name, Integer numEmployees, Integer year) {
+    public Manufacturer(Long id, String name, Integer numEmployees, Integer year, Date initialDate) {
         this.id = id;
         this.name = name;
         this.numEmployees = numEmployees;
         this.year = year;
-    }
+        this.initialDate=initialDate;}
 
     public Long getId() {
         return id;
@@ -56,7 +57,13 @@ public class Manufacturer {
     public void setYear(Integer year) {
         this.year = year;
     }
+    public Date getInitialDate() {
+        return initialDate;
+    }
 
+    public void setInitialDate(Date initialDate) {
+        this.initialDate = initialDate;
+    }
     @Override
     public String toString() {
         return "Manufacturer{" +
@@ -64,6 +71,7 @@ public class Manufacturer {
                 ", name='" + name + '\'' +
                 ", numEmployees=" + numEmployees +
                 ", year=" + year +
+                ", initial_date=" + initialDate+
                 '}';
     }
 }
