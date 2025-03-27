@@ -18,9 +18,7 @@ public class ManufacturerService {
     public List<Manufacturer> getAllManufacturers() {
         return manufacturerClient.getAllManufacturers();
     }
-    public Mono<List<Manufacturer>> getAllManufacturersSinBlock(){
-        return manufacturerClient.getAllManufacturersSinBlock();
-    }
+
 }
 
 
