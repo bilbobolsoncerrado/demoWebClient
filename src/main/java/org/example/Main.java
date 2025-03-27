@@ -1,42 +1,52 @@
 package org.example;
+import javafx.application.Platform;
+import org.example.cliente.WebClientLoggingConfig;
 import org.example.rest.*;
 import org.example.exceptions.*;
 import org.example.model.Manufacturer;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.publisher.Mono;
 
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
 public class Main {
     private static final String BASE_URL = "http://localhost:8080/api"; // Cambia el puerto si es necesario
 
     public static void main(String[] args) {
 
-                ManufacturerService manufacturerService = new ManufacturerService();
+        ManufacturerService manufacturerService = new ManufacturerService();
 
-                // Llamamos al servicio para obtener los fabricantes
-                Mono<List<Manufacturer>> manufacturersMono = manufacturerService.getAllManufacturers();
+        WebClientLoggingConfig webClientLoggingConfig = new WebClientLoggingConfig();
 
-                // Suscribirse al Mono para manejar la respuesta
-                manufacturersMono.subscribe(
-                        manufacturers -> System.out.println("Manufacturers usando service: " + manufacturers),
-                        error -> {
-                            // Manejar errores personalizados
-                            if (error instanceof ClientErrorException) {
-                                System.err.println("Client Error: " + error.getMessage());
-                            } else if (error instanceof ServerErrorException) {
-                                System.err.println("Server Error: " + error.getMessage());
-                            } else if (error instanceof GeneralErrorException) {
-                                System.err.println("General Error: " + error.getMessage());
-                            } else {
-                                System.err.println("Unknown Error: " + error.getMessage());
-                            }
-                        }
-                );
+        // Obtener el WebClient configurado con logging
+        WebClient webClient = webClientLoggingConfig.webClient();
 
-                WebClient webClient = WebClient.create(BASE_URL);
+        try {
+            // Realiza la solicitud de manera síncrona
+            List<Manufacturer> manufacturers  = webClient.get()
+                    .uri("/manufacturers")  // Cambia esta URI según tu servidor
+                    .retrieve()
+                    .bodyToFlux(Manufacturer.class)
+                    .collectList()
+                    .block();  // Bloquea para esperar la respuesta
+
+
+        } catch (org.springframework.web.reactive.function.client.WebClientRequestException e) {
+            System.err.println("❌ Error de conexión: "); // Servidor caido sale por aqui
+        } catch (Exception e) {
+            System.err.println("❌ Otro error: " + e.getMessage());
+        }
+
+        List<Manufacturer> manuf= manufacturerService.getAllManufacturers();
+        printManuf(manuf,"Manufacturers:");
+System.exit(0);
 
                 // Realizar petición GET a "/api/manufacturers"
                 List<Manufacturer> manufacturers = webClient.get()

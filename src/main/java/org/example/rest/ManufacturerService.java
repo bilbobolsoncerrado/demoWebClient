@@ -15,7 +15,7 @@ public class ManufacturerService {
         this.manufacturerClient = new ManufacturerClient();  // Crear el cliente sin @Autowired
     }
 
-    public Mono<List<Manufacturer>> getAllManufacturers() {
+    public List<Manufacturer> getAllManufacturers() {
         return manufacturerClient.getAllManufacturers();
     }
 }
