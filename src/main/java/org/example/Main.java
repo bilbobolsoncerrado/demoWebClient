@@ -1,20 +1,18 @@
 package org.example;
-import javafx.application.Platform;
 import org.example.cliente.WebClientLoggingConfig;
+import org.example.exceptions.ServerErrorException;
 import org.example.rest.*;
-import org.example.exceptions.*;
+
 import org.example.model.Manufacturer;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.publisher.Mono;
 
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.util.Collections;
+
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+
 
 public class Main {
     private static final String BASE_URL = "http://localhost:8080/api"; // Cambia el puerto si es necesario
@@ -29,23 +27,37 @@ public class Main {
         WebClient webClient = webClientLoggingConfig.webClient();
 
         try {
-            // Realiza la solicitud de manera síncrona
-            List<Manufacturer> manufacturers  = webClient.get()
-                    .uri("/manufacturers")  // Cambia esta URI según tu servidor
-                    .retrieve()
-                    .bodyToFlux(Manufacturer.class)
-                    .collectList()
-                    .block();  // Bloquea para esperar la respuesta
-
-
-        } catch (org.springframework.web.reactive.function.client.WebClientRequestException e) {
-            System.err.println("❌ Error de conexión: "); // Servidor caido sale por aqui
-        } catch (Exception e) {
-            System.err.println("❌ Otro error: " + e.getMessage());
+            List<Manufacturer> manuf = manufacturerService.getAllManufacturers();
+            printManuf(manuf, "Manufacturers:");
+        }
+        catch(ServerErrorException e)
+        {
+            System.err.println("ServerErrorException "+e.getMessage());
+        }
+        catch(RuntimeException e)
+        {
+            System.err.println("RuntimeException "+e.getMessage());
         }
 
-        List<Manufacturer> manuf= manufacturerService.getAllManufacturers();
-        printManuf(manuf,"Manufacturers:");
+        manufacturerService.getAllManufacturersSinBlock()
+                .subscribe(
+                        manufacturers -> {
+                            // Aquí procesas la lista cuando llegue sin errores
+                            printManuf(manufacturers, "Manufacturers:");
+                            System.err.println("todo va bien");
+                        },
+                        error -> {
+                            // Este error es propagado desde el flujo reactivo
+                            System.err.println("algo malo ha pasado");
+                            if (error instanceof ServerErrorException) {
+                                System.err.println("ServerErrorException: " + error.getMessage());
+                            } else if (error instanceof RuntimeException) {
+                                System.err.println("RuntimeException: " + error.getMessage());
+                            } else {
+                                System.err.println("Unexpected error: " + error.getMessage());
+                            }
+                        }
+                );
 System.exit(0);
 
                 // Realizar petición GET a "/api/manufacturers"
