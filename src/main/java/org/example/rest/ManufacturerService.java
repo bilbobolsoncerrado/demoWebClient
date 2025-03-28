@@ -18,6 +18,9 @@ public class ManufacturerService {
     public List<Manufacturer> getAllManufacturers() {
         return manufacturerClient.getAllManufacturers();
     }
+    public Long countManufacturers(){return manufacturerClient.countManufacturers();}
+
+
 
 }
 

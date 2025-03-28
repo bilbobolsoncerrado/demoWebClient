@@ -38,28 +38,21 @@ public class Main {
         {
             System.err.println("RuntimeException "+e.getMessage());
         }
+        try {
+            Long numeroDeManuf = manufacturerService.countManufacturers();
+            System.out.println(numeroDeManuf);
+        }
+        catch(ServerErrorException e)
+        {
+            System.err.println("ServerErrorException "+e.getMessage());
+        }
+        catch(RuntimeException e)
+        {
+            System.err.println("RuntimeException "+e.getMessage());
+        }
 
-        manufacturerService.getAllManufacturersSinBlock()
-                .subscribe(
-                        manufacturers -> {
-                            // Aquí procesas la lista cuando llegue sin errores
-                            printManuf(manufacturers, "Manufacturers:");
-                            System.err.println("todo va bien");
-                        },
-                        error -> {
-                            // Este error es propagado desde el flujo reactivo
-                            System.err.println("algo malo ha pasado");
-                            if (error instanceof ServerErrorException) {
-                                System.err.println("ServerErrorException: " + error.getMessage());
-                            } else if (error instanceof RuntimeException) {
-                                System.err.println("RuntimeException: " + error.getMessage());
-                            } else {
-                                System.err.println("Unexpected error: " + error.getMessage());
-                            }
-                        }
-                );
 System.exit(0);
-
+        // a continuación llamadas al servidor "directas", esto es, sin usar MAnufacturerClient
                 // Realizar petición GET a "/api/manufacturers"
                 List<Manufacturer> manufacturers = webClient.get()
                         .uri("/manufacturers")

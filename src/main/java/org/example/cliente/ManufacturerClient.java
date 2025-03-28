@@ -47,7 +47,27 @@ public class ManufacturerClient {
 
         return manufacturers;
     }
+    public Long countManufacturers() {
+        Long manufacturers= 0L;
+        try {
+            manufacturers  = webClient.get()
+                    .uri("/count/{id}",1)
+                    .retrieve()
 
+                    .bodyToMono(Long.class) // Convertimos la respuesta en una lista de Manufacturer
+
+
+                    .block();
+
+        }
+        catch(org.springframework.web.reactive.function.client.WebClientRequestException e) {
+            throw new ServerErrorException("servidor caido");
+        } catch (RuntimeException e) {
+            throw new RuntimeException( e.getMessage() ); // Error 500, 400
+        }
+
+        return manufacturers;
+    }
 
 
 }
